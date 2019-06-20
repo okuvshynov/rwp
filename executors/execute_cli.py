@@ -25,8 +25,11 @@ def ld_link():
     ld_stdout,ld_stderr = ld_result.communicate()
 
 def run_perf_stat(perf_events):
+    # allowed perf for non-root:
+    # sudo sh -c 'echo 1 >/proc/sys/kernel/perf_event_paranoid'
+    # sudo sh -c 'echo kernel.perf_event_paranoid=1 > /etc/sysctl.d/local.conf'
     perf_result = subprocess.Popen(
-            ["sudo", "perf", "stat", "-e", perf_events, "/tmp/rwp_executable"],
+            ["perf", "stat", "-e", perf_events, "/tmp/rwp_executable"],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
     perf_stdout,perf_stderr = perf_result.communicate()
