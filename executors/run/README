@@ -1,0 +1,6 @@
+This folder will contain implementation for the runners - things which launch executables 
+and capturing some telemetry about the runs. First implementation would likely be
+
+perf stat -e <events> <executable>
+
+perf annotate/record/report might come later.

@@ -1,0 +1,13 @@
+This folder contains various 'builder' implementations, which take 'source' as an input
+and produce an executable.
+
+They could be subdivided into stages like compiling and linking, but the high-level interface is:
+In: code
+Out: executable.
+
+Implementations for MVP would likely be:
+1) nasm + ld
+2) some C/C++
+3) maybe godbolt API?
+
+build/ run/ and comm/ must not depend on each other.
