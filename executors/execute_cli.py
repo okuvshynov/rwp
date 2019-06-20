@@ -3,7 +3,8 @@
 
 # This is the simplest version of executor
 # For now I'm using it to automate some local runs and see what exactly 
-# will we need. 
+# will we need. Eventually this is going to be refactored and live in build/
+# and run/ modules.
 
 import sys
 import subprocess
