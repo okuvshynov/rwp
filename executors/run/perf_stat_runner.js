@@ -9,11 +9,31 @@ const path = require('path');
  */
 var perf_stat_runner = {
   run : function(executable, events) {
-    console.log(events, executable);
-    const perf_stat = spawnSync('perf', ['stat', '-e', events, executable]);
+    const output_file = executable + '.stat';
+    const separator = ',';
+    const perf_stat = spawnSync(
+      'perf',
+      ['stat', '-e', events, '-o', output_file, '-x', separator, executable]
+    );
 
-    console.log(perf_stat.stdout.toString('utf8'));
-    console.log(perf_stat.stderr.toString('utf8'));
+    var res = {};
+
+    // parse the output from output file
+    const rows = 
+      (fs.readFileSync(output_file, 'utf8'))
+      .split('\n')
+      .map(
+        l => {
+          const f = l.split(separator);
+
+          if (f.length >= 3) {
+            // first field is counter value, 3rd field is counter name
+            res[f[2]] = parseInt(f[0]);
+          }
+        }
+      );
+
+    return res;
   }
 }
 module.exports = perf_stat_runner;
