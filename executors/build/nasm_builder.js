@@ -11,11 +11,13 @@ var nasm_builder = {
     // TODO: error-handling
     const r = fs.writeFileSync(src, source);
 
-    console.log(options.concat(src, '-o', obj));
     const nasm = spawnSync('nasm', options.concat(src, '-o', obj));
-    console.log(nasm.stderr.toString('utf8'));
+    // TODO: return error
+    // console.log(nasm.stderr.toString('utf8'));
+
     const ld = spawnSync('ld', [obj, '-o', exe]);
-    console.log(ld.stderr.toString('utf8'));
+    // TODO: return error
+    // console.log(ld.stderr.toString('utf8'));
 
     return exe;
   }
