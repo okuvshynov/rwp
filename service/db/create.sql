@@ -1,3 +1,8 @@
+-- MIT License
+-- Refer to /LICENSE file for full text
+-- Copyright (c) 2019 Oleksandr Kuvshynov
+
+
 -- Status can mean
 -- * 0 - newly created, not picked up
 -- * 1 - picked up by executor

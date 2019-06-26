@@ -1,3 +1,8 @@
+; MIT License
+; Refer to /LICENSE file for full text
+; Copyright (c) 2019 Oleksandr Kuvshynov
+;
+;
 ; LOAD_BLOCK.OVERLAP_STORE
 ;
 ; This event fires in several cases, one of which is:

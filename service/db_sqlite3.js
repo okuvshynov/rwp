@@ -1,5 +1,9 @@
-// This is sqlite implementation of the data access. 
-// Maybe, in future, we'll migrate to something different;
+// MIT License
+// Refer to /LICENSE file for full text
+// Copyright (c) 2019 Oleksandr Kuvshynov
+
+// This is sqlite implementation of the data access module. 
+// Maybe, in future, we'll have to migrate to something different;
 const sqlite3 = require('sqlite3');
 
 class DBSQLite {

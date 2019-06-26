@@ -1,3 +1,7 @@
+// MIT License
+// Refer to /LICENSE file for full text
+// Copyright (c) 2019 Oleksandr Kuvshynov
+
 const fs = require('fs');
 const http = require('http');
 const port = 3031;
