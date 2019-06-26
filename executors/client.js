@@ -1,3 +1,7 @@
+// MIT License
+// Refer to /LICENSE file for full text
+// Copyright (c) 2019 Oleksandr Kuvshynov
+
 const http = require('http')
 const nasm_builder = require('./build/nasm_builder.js')
 const perf_stat_runner = require('./run/perf_stat_runner.js')

@@ -1,3 +1,7 @@
+// MIT License
+// Refer to /LICENSE file for full text
+// Copyright (c) 2019 Oleksandr Kuvshynov
+
 const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
