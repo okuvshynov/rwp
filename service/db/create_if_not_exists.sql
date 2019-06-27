@@ -14,11 +14,13 @@ CREATE TABLE IF NOT EXISTS tasks(
   run_uuid TEXT
 );
 CREATE INDEX IF NOT EXISTS task_status_idx ON tasks(status);
+CREATE INDEX IF NOT EXISTS task_uuid ON tasks(run_uuid);
 
 CREATE TABLE IF NOT EXISTS results(
   id INTEGER PRIMARY KEY ASC,
-  task_id INTEGER,
-  FOREIGN KEY(task_id) REFERENCES tasks(id)
+  task_run_uuid TEXT,
+  result TEXT,
+  FOREIGN KEY(task_run_uuid) REFERENCES tasks(run_uuid)
 );
 
 -- This is 'cached' version to show in UI
