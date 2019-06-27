@@ -10,7 +10,8 @@
 CREATE TABLE IF NOT EXISTS tasks(
   id INTEGER PRIMARY KEY ASC,
   task_config TEXT,
-  status INTEGER
+  status INTEGER,
+  run_uuid TEXT
 );
 CREATE INDEX IF NOT EXISTS task_status_idx ON tasks(status);
 
