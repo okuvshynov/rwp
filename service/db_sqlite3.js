@@ -5,6 +5,7 @@
 // This is sqlite implementation of the data access module. 
 // Maybe, in future, we'll have to migrate to something different;
 const sqlite3 = require('sqlite3');
+const uuidv1 = require('uuid/v1');
 
 class DBSQLite {
   constructor(path) {
@@ -61,12 +62,32 @@ class DBSQLite {
    * become more complicated than it is right now.
    */
   async dequeue() {
+    return new Promise((resolve, reject) => {
+      const run_id = uuidv1();
+      this.db.run(
+        "UPDATE tasks SET run_uuid = ?, status = 1 WHERE id IN (SELECT id FROM tasks WHERE status = 0 ORDER BY id ASC LIMIT 1)", [run_id], (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          this.db.get("SELECT * FROM tasks WHERE run_uuid=?", [run_id], (err, row) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(row);
+            }
+          });
+        }
+      });
+    });
   }
 
   async new_task(source) {
     return this.insert("INSERT INTO tasks(task_config, status) VALUES(?, ?)", [source, 0]);
   }
 }
+
+
+// TESTING BELOW
 
 var db = new DBSQLite("service/db/db.sqlite");
 db.active_tasks()
@@ -84,3 +105,11 @@ db.new_task('mov ax, bx')
 .catch(err => {
   console.error(err);
 })
+
+db.dequeue()
+.then(r => {
+  console.log(r);
+})
+.catch(err => {
+  console.error(err);
+});
