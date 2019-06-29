@@ -2,7 +2,7 @@
 // Refer to /LICENSE file for full text
 // Copyright (c) 2019 Oleksandr Kuvshynov
 
-// This is sqlite implementation of the data access module. 
+// This is sqlite implementation of the data access module.
 // Maybe, in future, we'll have to migrate to something different;
 // To implement:
 // [x] get list of active executors
@@ -30,18 +30,22 @@ class DBSQLite {
     const sql_path = './service/db/create_if_not_exists.sql';
     return new Promise((resolve, reject) => {
       fs.readFile(sql_path, 'utf8', (err, content) => {
-        this.db.exec(content, (err) => {
-          if (err) {
-            this.valid = false;
-            reject(err);
-          } else {
-            this.valid = true;
-            resolve();
-          }
-        });
+        if (err) {
+          reject(err);
+        } else {
+          this.db.exec(content, (err) => {
+            if (err) {
+              this.valid = false;
+              reject(err);
+            } else {
+              this.valid = true;
+              resolve();
+            }
+          });
+        }
       });
     });
-  } 
+  }
 
   isValid() {
     return this.valid;
@@ -81,10 +85,10 @@ class DBSQLite {
    * inserted id (or error)
    */
   async insert(sql, params) {
-    return new Promise((resolve, reject) => { 
+    return new Promise((resolve, reject) => {
       // Using 'function' instead of arrow notation
       // to get access to this.lastID
-      this.db.run(sql, params, function (err) {
+      this.db.run(sql, params, function(err) {
         if (err) {
           reject(err);
         } else {
@@ -95,19 +99,19 @@ class DBSQLite {
   }
 
   async active_executors() {
-    return this.all("select * from executors");
+    return this.all('select * from executors');
   }
 
   async active_tasks() {
-    return this.all("select * from tasks where status=0");
+    return this.all('select * from tasks where status=0');
   }
 
   /*
-   * Picks the task with status = 0 in FIFO order and atomically modifies the status.
-   * This is implemented in DB because we might need more complicated filtering re:
-   * which executor can run which task. For example,
-   * same CPU architecture but different number of cores. So, it's likely the query will
-   * become more complicated than it is right now.
+   * Picks the task with status = 0 in FIFO order and atomically modifies
+   * the status. This is implemented in DB because we might need more
+   * complicated filtering re:which executor can run which task. For example,
+   * same CPU architecture but different number of cores.
+   * So, it's likely the query will become more complicated than it is now.
    */
   async dequeue() {
     return new Promise((resolve, reject) => {
@@ -118,34 +122,51 @@ class DBSQLite {
             ORDER BY id ASC
             LIMIT 1
         )`, [run_id], (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          this.db.get("SELECT * FROM tasks WHERE run_uuid=?", [run_id], (err, row) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(row);
-            }
-          });
-        }
-      });
+          if (err) {
+            reject(err);
+          } else {
+            this.db.get(
+              'SELECT * FROM tasks WHERE run_uuid=?', [run_id], (err, row) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(row);
+                }
+              });
+          }
+        });
     });
   }
 
   async new_task(source) {
-    return this.insert("INSERT INTO tasks(task_config, status) VALUES(?, ?)", [source, 0]);
+    return this.insert(
+      'INSERT INTO tasks(task_config, status) VALUES(?, ?)', [source, 0]
+    );
   }
 
-  // TODO: also modify task status. Although, maybe run_uuid counts as a status and we do 
-  // not need that field at all. 
+  // TODO: also modify task status.
+  // Although, maybe run_uuid counts as a status and we do not need it at all.
   // TODO: make sure to not record duplicated results
   async record_task_result(task_uuid, result) {
-    return this.insert("INSERT INTO results(task_run_uuid, result) VALUES(?, ?)", [task_uuid, result]);
+    return this.insert(
+      'INSERT INTO results(task_run_uuid, result) VALUES(?, ?)',
+      [task_uuid, result]
+    );
   }
 
   async get_task_result(task_uuid) {
-    return this.get("SELECT tasks.task_config, tasks.run_uuid, tasks.id, results.result FROM tasks, results WHERE tasks.run_uuid=results.task_run_uuid AND tasks.run_uuid = ?", [task_uuid]);
+    return this.get(
+      `SELECT 
+         tasks.task_config, 
+         tasks.run_uuid, 
+         tasks.id, 
+         results.result 
+       FROM 
+        tasks, results 
+       WHERE 
+         tasks.run_uuid=results.task_run_uuid AND tasks.run_uuid = ?`,
+      [task_uuid]
+    );
   }
 }
 

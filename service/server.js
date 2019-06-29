@@ -20,40 +20,40 @@ const port = 3031;
 const handle_pick_task = (req, res) => {
   console.log('executor checks if there\'re any tasks');
   res.end();
-}
+};
 
 const handle_task_done = (req, res) => {
   console.log('executor reports on completed task results');
   res.end();
-}
+};
 
 const handle_index = (req, res) => {
   console.log('index.html');
   res.end();
-}
+};
 
 const handle_submit_task = (req, res) => {
   console.log('user submits new task');
   res.end();
-}
+};
 
 const default_handler = (req, res) => {
   console.log('404');
   res.end();
-}
+};
 
 const handler_map = {
-  '/pick_task' : handle_pick_task,
-  '/task_done' : handle_task_done,
-  '/' : handle_index,
-  '/submit_task' : handle_submit_task
+  '/pick_task': handle_pick_task,
+  '/task_done': handle_task_done,
+  '/': handle_index,
+  '/submit_task': handle_submit_task,
 };
 
 const handler = (request, response) => {
   console.log(request.url);
-  handler_impl = handler_map[request.url] || default_handler;
+  var handler_impl = handler_map[request.url] || default_handler;
   handler_impl(request, response);
-}
+};
 
 const server = http.createServer(handler);
 
@@ -61,6 +61,6 @@ server.listen(port, (err) => {
   if (err) {
     return console.log('error: ', err);
   }
-  
+
   console.log(`listening on ${port}`);
 });
