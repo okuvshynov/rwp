@@ -65,12 +65,10 @@ class DBSQLite {
 
   async get(sql, params) {
     return new Promise((resolve, reject) => {
-      console.log(sql);
       this.db.get(sql, params, (err, row) => {
         if (err) {
           reject(err);
         } else {
-          console.log(row);
           resolve(row);
         }
       });
@@ -115,7 +113,11 @@ class DBSQLite {
     return new Promise((resolve, reject) => {
       const run_id = uuidv1();
       this.db.run(
-        "UPDATE tasks SET run_uuid = ?, status = 1 WHERE id IN (SELECT id FROM tasks WHERE status = 0 ORDER BY id ASC LIMIT 1)", [run_id], (err) => {
+        `UPDATE tasks SET run_uuid = ?, status = 1 WHERE id IN (
+            SELECT id FROM tasks WHERE status = 0 
+            ORDER BY id ASC
+            LIMIT 1
+        )`, [run_id], (err) => {
         if (err) {
           reject(err);
         } else {
@@ -148,48 +150,3 @@ class DBSQLite {
 }
 
 module.exports = DBSQLite;
-
-
-// TESTING BELOW
-/*
-
-var db = new DBSQLite("service/db/db.sqlite");
-db.active_tasks()
-.then(r => {
-  console.log(r);
-})
-.catch(err => {
-  console.error(err);
-});
-
-db.new_task('mov ax, bx')
-.then(id => {
-  console.log('inserted! ', id);
-})
-.catch(err => {
-  console.error(err);
-})
-
-db.dequeue()
-.then(r => {
-  console.log(r);
-})
-.catch(err => {
-  console.error(err);
-});
-
-db.record_task_result('ccf0c990-9887-11e9-8916-951f66545605', 'cycles: 123')
-.then((id) => {
-  console.log('recorded result: ', id);
-})
-.catch(err => {
-  console.error(err);
-})
-
-db.get_task_result('ccf0c990-9887-11e9-8916-951f66545605')
-.then(r => {
-  console.log('got result: ', r);
-})
-.catch(err => {
-  console.error(err);
-})*/
