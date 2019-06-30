@@ -4,7 +4,60 @@
 
 const http = require('http');
 
-const port = 3031;
+const handle_pick_task = (db, req, res) => {
+  console.log('executor checks if there\'re any tasks');
+  res.end();
+};
+
+const handle_task_done = (db, req, res) => {
+  console.log('executor reports on completed task results');
+  res.end();
+};
+
+const handle_index = (db, req, res) => {
+  console.log('index.html');
+  res.end();
+};
+
+const handle_submit_task = (db, req, res) => {
+  console.log('user submits new task');
+  res.end();
+};
+
+const default_handler = (db, req, res) => {
+  console.log('404');
+  res.end();
+};
+
+const handler_map = {
+  '/pick_task': handle_pick_task,
+  '/task_done': handle_task_done,
+  '/': handle_index,
+  '/submit_task': handle_submit_task,
+};
+
+class RWPServer {
+  constructor(port, db) {
+    this.db = db;
+    this.port = port;
+    this.server = http.createServer((request, response) => {
+      console.log(request.url);
+      var handler_impl = handler_map[request.url] || default_handler;
+      handler_impl(this.db, request, response);
+    });
+  }
+
+  serve() {
+    this.server.listen(this.port, (err) => {
+      if (err) {
+        return console.log('error: ', err);
+      }
+      console.log(`listening on ${this.port}`);
+    });
+  }
+};
+
+module.exports = RWPServer;
 
 /*
  * List of functionality we need to implement:
@@ -20,50 +73,3 @@ const port = 3031;
  *  - executor task done
  */
 
-const handle_pick_task = (req, res) => {
-  console.log('executor checks if there\'re any tasks');
-  res.end();
-};
-
-const handle_task_done = (req, res) => {
-  console.log('executor reports on completed task results');
-  res.end();
-};
-
-const handle_index = (req, res) => {
-  console.log('index.html');
-  res.end();
-};
-
-const handle_submit_task = (req, res) => {
-  console.log('user submits new task');
-  res.end();
-};
-
-const default_handler = (req, res) => {
-  console.log('404');
-  res.end();
-};
-
-const handler_map = {
-  '/pick_task': handle_pick_task,
-  '/task_done': handle_task_done,
-  '/': handle_index,
-  '/submit_task': handle_submit_task,
-};
-
-const handler = (request, response) => {
-  console.log(request.url);
-  var handler_impl = handler_map[request.url] || default_handler;
-  handler_impl(request, response);
-};
-
-const server = http.createServer(handler);
-
-server.listen(port, (err) => {
-  if (err) {
-    return console.log('error: ', err);
-  }
-
-  console.log(`listening on ${port}`);
-});

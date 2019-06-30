@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const DBSQLite = require('../db_sqlite3.js');
+const DBSQLite = require('../db_sqlite.js');
 
 /*
  * For testing, just mock SQLite in memory
