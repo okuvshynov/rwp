@@ -9,12 +9,15 @@ const port = 3031;
 /*
  * List of functionality we need to implement:
  * User facing:
+ *  - see if there're executors available
  *  - submit new job
  *  - monitor for job completion, see results
+ *  - check queue status
  *  - check other jobs (including docs)
  * Executor-facing:
  *  - executor status reporting
- *  - executor task queue
+ *  - executor task dequeue
+ *  - executor task done
  */
 
 const handle_pick_task = (req, res) => {

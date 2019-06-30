@@ -138,6 +138,9 @@ class DBSQLite {
     });
   }
 
+  /*
+   * Submit new task.
+   */
   async new_task(source) {
     return this.insert(
       'INSERT INTO tasks(task_config, status) VALUES(?, ?)', [source, 0]
@@ -147,24 +150,40 @@ class DBSQLite {
   // TODO: also modify task status.
   // Although, maybe run_uuid counts as a status and we do not need it at all.
   // TODO: make sure to not record duplicated results
+  // TODO: maybe avoid 'results' table entirely.
   async record_task_result(task_uuid, result) {
-    return this.insert(
-      'INSERT INTO results(task_run_uuid, result) VALUES(?, ?)',
-      [task_uuid, result]
-    );
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        `UPDATE
+             tasks
+           SET
+             result = ?, status = 2 
+           WHERE
+             run_uuid = ? AND status = 1`, [result, task_uuid], (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+    });
   }
 
+  /*
+   * Get result of task execution by run UUID.
+   * Maybe it's a good idea to get by id?
+   */
   async get_task_result(task_uuid) {
     return this.get(
       `SELECT 
          tasks.task_config, 
          tasks.run_uuid, 
          tasks.id, 
-         results.result 
+         tasks.result 
        FROM 
-        tasks, results 
+        tasks 
        WHERE 
-         tasks.run_uuid=results.task_run_uuid AND tasks.run_uuid = ?`,
+         tasks.run_uuid= ?`,
       [task_uuid]
     );
   }
