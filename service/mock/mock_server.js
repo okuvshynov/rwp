@@ -3,42 +3,26 @@
 // Copyright (c) 2019 Oleksandr Kuvshynov
 
 const fs = require('fs');
-const http = require('http');
 const port = 3031;
-
+const express = require('express');
+const bodyParser = require('body-parser')
+const multer = require('multer')
 
 const config =
   JSON.parse(fs.readFileSync('service/mock/mock_task.json', 'utf8'));
 const src = fs.readFileSync('service/mock/mock_src.asm', 'utf8');
 config['source'] = src;
 
-const handler = (request, response) => {
-  console.log(request.url);
-  if (request.url === '/task') {
-    response.end(JSON.stringify(config));
-    return;
-  }
-  if (request.url === '/task_done') {
-    let data = '';
-    request.on('data', d => {
-      data += d;
-    });
-    request.on('end', () => {
-      console.log(data);
-    });
-    response.end();
-    return;
-  }
+const app = express();
+app.use(bodyParser.json());
 
-  response.end();
-};
-
-const server = http.createServer(handler);
-
-server.listen(port, (err) => {
-  if (err) {
-    return console.log('error: ', err);
-  }
-
-  console.log(`listening on ${port}`);
+app.get('/task', (req, res) => {
+  res.send(JSON.stringify(config));
 });
+
+app.post('/task_done', (req, res, next) => {
+  console.log(req.body);
+  res.sendStatus(200);
+});
+
+app.listen(port, () => console.log(`listening on ${port}`));
