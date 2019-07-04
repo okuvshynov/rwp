@@ -29,21 +29,25 @@ class DBSQLite {
      */
     const sql_path = './service/db/create_if_not_exists.sql';
     return new Promise((resolve, reject) => {
-      fs.readFile(sql_path, 'utf8', (err, content) => {
-        if (err) {
-          reject(err);
-        } else {
-          this.db.exec(content, (err) => {
-            if (err) {
-              this.valid = false;
-              reject(err);
-            } else {
-              this.valid = true;
-              resolve();
-            }
-          });
-        }
-      });
+      if (this.valid) {
+        resolve();
+      } else {
+        fs.readFile(sql_path, 'utf8', (err, content) => {
+          if (err) {
+            reject(err);
+          } else {
+            this.db.exec(content, (err) => {
+              if (err) {
+                this.valid = false;
+                reject(err);
+              } else {
+                this.valid = true;
+                resolve();
+              }
+            });
+          }
+        });
+      }
     });
   }
 
