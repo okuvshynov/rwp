@@ -5,8 +5,7 @@
 const fs = require('fs');
 const port = 3031;
 const express = require('express');
-const bodyParser = require('body-parser')
-const multer = require('multer')
+const bodyParser = require('body-parser');
 
 const config =
   JSON.parse(fs.readFileSync('service/mock/mock_task.json', 'utf8'));

@@ -55,13 +55,16 @@ describe('DBSQLite', () => {
     expect(task).to.be.undefined;
   });
 
-  it('dequeue the task and set result', async() => {
+  it('dequeue the task and set/get result', async() => {
     const db = new DBSQLite(path);
     await db.connect();
     expect(db.isValid()).to.be.true;
 
-    await db.new_task('mov ax, bx');
+    const code = 'mov ax, bx';
+
+    await db.new_task(code);
     const task = await db.dequeue();
+    expect(task.task_config).to.equal(code);
 
     const res = '{cycles: 123}';
     await db.record_task_result(task.run_uuid, res);
