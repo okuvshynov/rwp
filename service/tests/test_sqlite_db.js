@@ -69,7 +69,7 @@ describe('DBSQLite', () => {
     const res = '{cycles: 123}';
     await db.record_task_result(task.run_uuid, res);
 
-    const task_result = await db.get_task_result(task.run_uuid);
+    const task_result = await db.get_task_result(task.uuid);
     expect(task_result.id).to.equal(task.id);
     expect(task_result.result).to.equal(res);
   });

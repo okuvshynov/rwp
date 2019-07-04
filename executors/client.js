@@ -2,6 +2,7 @@
 // Refer to /LICENSE file for full text
 // Copyright (c) 2019 Oleksandr Kuvshynov
 
+// TODO: try axios
 const http = require('http');
 const nasm_builder = require('./build/nasm_builder.js');
 const perf_stat_runner = require('./run/perf_stat_runner.js');
@@ -42,8 +43,9 @@ function send_results(to_send) {
  * not accessible from the outside.
  */
 function ask_for_tasks() {
+  console.log('checking for active tasks...');
   var poll_options = {
-    path: '/task',
+    path: '/tasks',
     method: 'GET',
   };
   Object.assign(poll_options, server_config);
@@ -60,19 +62,33 @@ function ask_for_tasks() {
     });
 
     res.on('end', () => {
-      var config = JSON.parse(query);
-      const exe = nasm_builder.build('/tmp', config.source, ['-felf64']);
-      const event_counts = perf_stat_runner.run(exe, config.perf_events);
-      const to_send = JSON.stringify({
-        key: config.key,
-        perf_events: event_counts,
-      });
+      try {
+        var config = JSON.parse(query);
+      } catch (e) {
+        console.error(e);
+        console.log('will retry');
+        return;
+      }
+      config.forEach(task => {
+        console.log('compiling...');
+        const exe = nasm_builder.build('/tmp', config.source, ['-felf64']);
+        console.log('executing...');
+        const event_counts = perf_stat_runner.run(exe, config.perf_events);
+        const to_send = JSON.stringify({
+          key: config.key,
+          perf_events: event_counts,
+        });
 
-      send_results(to_send);
+        console.log('sending results...');
+        send_results(to_send);
+      });
     });
   });
-
+  req.on('error', err => {
+    console.error(err);
+    console.log('will retry');
+  });
   req.end();
 }
 
-ask_for_tasks();
+setInterval(ask_for_tasks, 5 * 1000);

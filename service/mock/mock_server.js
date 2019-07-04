@@ -10,12 +10,12 @@ const bodyParser = require('body-parser');
 const config =
   JSON.parse(fs.readFileSync('service/mock/mock_task.json', 'utf8'));
 const src = fs.readFileSync('service/mock/mock_src.asm', 'utf8');
-config['source'] = src;
+config[0].source = src;
 
 const app = express();
 app.use(bodyParser.json());
 
-app.get('/task', (req, res) => {
+app.get('/tasks', (req, res) => {
   res.send(JSON.stringify(config));
 });
 

@@ -1,5 +1,5 @@
-{
+[{
   "compiler_config" : {},
   "perf_events" : "cycles,r0803",
   "key" : "qweasd"
-}
+}]

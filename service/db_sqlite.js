@@ -146,16 +146,27 @@ class DBSQLite {
    * Submit new task.
    */
   async new_task(source) {
-    return this.insert(
-      'INSERT INTO tasks(task_config, status) VALUES(?, ?)', [source, 0]
-    );
+    const task_uuid = uuidv1();
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'INSERT INTO tasks(task_config, uuid, status) VALUES(?, ?, ?)',
+        [source, task_uuid, 0],
+        (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(task_uuid);
+          }
+        }
+      );
+    });
   }
 
   // TODO: also modify task status.
   // Although, maybe run_uuid counts as a status and we do not need it at all.
   // TODO: make sure to not record duplicated results
   // TODO: maybe avoid 'results' table entirely.
-  async record_task_result(task_uuid, result) {
+  async record_task_result(run_uuid, result) {
     return new Promise((resolve, reject) => {
       this.db.run(
         `UPDATE
@@ -163,7 +174,7 @@ class DBSQLite {
            SET
              result = ?, status = 2 
            WHERE
-             run_uuid = ? AND status = 1`, [result, task_uuid], (err) => {
+             run_uuid = ? AND status = 1`, [result, run_uuid], (err) => {
           if (err) {
             reject(err);
           } else {
@@ -174,7 +185,7 @@ class DBSQLite {
   }
 
   /*
-   * Get result of task execution by run UUID.
+   * Get result of task execution by task UUID (not to confuse with run UUID)
    * Maybe it's a good idea to get by id?
    */
   async get_task_result(task_uuid) {
@@ -183,11 +194,12 @@ class DBSQLite {
          tasks.task_config, 
          tasks.run_uuid, 
          tasks.id, 
+         tasks.uuid,
          tasks.result 
        FROM 
         tasks 
        WHERE 
-         tasks.run_uuid= ?`,
+         tasks.uuid = ?`,
       [task_uuid]
     );
   }
