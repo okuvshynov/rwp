@@ -19,7 +19,7 @@
     "mocha": "^6.1.4"
   },
   "scripts": {
-    "test": "mocha service/tests/*.js",
+    "test": "mocha tests/*.js",
     "pretest": "eslint --ignore-path .gitignore ."
   },
   "repository": {

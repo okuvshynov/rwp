@@ -9,13 +9,15 @@
 -- * 2 - finished
 CREATE TABLE IF NOT EXISTS tasks(
   id INTEGER PRIMARY KEY ASC,
+  uuid TEXT,
   task_config TEXT,
   status INTEGER,
   run_uuid TEXT,
   result TEXT
 );
 CREATE INDEX IF NOT EXISTS task_status_idx ON tasks(status);
-CREATE INDEX IF NOT EXISTS task_uuid ON tasks(run_uuid);
+CREATE INDEX IF NOT EXISTS task_uuid ON tasks(uuid);
+CREATE INDEX IF NOT EXISTS task_run_uuid ON tasks(run_uuid);
 
 --CREATE TABLE IF NOT EXISTS results(
 --  id INTEGER PRIMARY KEY ASC,
