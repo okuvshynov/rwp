@@ -20,7 +20,6 @@ const DBSQLite = require('./db_sqlite.js');
  *  - executor task done
  */
 
-
 // TODO: current db is for 1 session only
 const db = new DBSQLite(':memory:');
 const port = 3031;
@@ -41,7 +40,6 @@ app.get('/task_status', async(req, res) => {
   console.log('/task_status');
   await db.connect();
   const task = await db.get_task_result(req.query.uuid);
-  console.log(task);
   if (task === undefined) {
     res.send([]);
   } else {
@@ -50,7 +48,6 @@ app.get('/task_status', async(req, res) => {
     }]);
   }
 });
-
 
 app.get('/tasks', async(req, res) => {
   console.log('/tasks');

@@ -1,6 +1,10 @@
 const axios = require('axios');
 const fs = require('fs');
 
+process.on('uncaughtException', (err) => {
+  console.log(err);
+});
+
 const src = fs.readFileSync('service/mock/mock_src.asm', 'utf8');
 
 class MockUIClient {

@@ -21,18 +21,18 @@
  *    to the mock executor.
  */
 
-
-const expect = require('chai').expect;
 const { fork } = require('child_process');
 const MockUIClient = require('./MockUIClient.js');
 
-describe('RWP E2E', function() {
-  this.timeout(5000);
-  it('mock ui, real server, mock executor', async() => {
-    // First, start the real server
-    const server = fork('service/app.js');
+test('testing server interfaces', done => {
+  process.on('uncaughtException', (err) => {
+    console.log(err);
+  });
+  // First, start the real server
+  const server = fork('service/app.js');
 
-    // Start the executor, which will periodically poll for jobs
+  // Start the executor, which will periodically poll for jobs
+  setTimeout(async() => {
     const executor = fork('service/mock/mock_executor.js');
 
     setTimeout(async() => {
@@ -40,12 +40,15 @@ describe('RWP E2E', function() {
       const task_id = await client.new_task();
       setTimeout(async() => {
         const result = await client.task_status(task_id);
-        console.log(result);
-        expect(result).to.equal('123');
+        expect(result).toHaveLength(1);
+        const perf_events = result[0].perf_events;
+        expect(perf_events).toBeDefined();
+        const counters = JSON.parse(perf_events);
+        console.log(counters);
         executor.kill('SIGINT');
         server.kill('SIGINT');
-      }, 2000);
-    }, 2000);
-  });
+        done();
+      }, 1000);
+    }, 1000);
+  }, 1000);
 });
-
