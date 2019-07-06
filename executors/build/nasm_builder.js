@@ -3,30 +3,36 @@
 // Copyright (c) 2019 Oleksandr Kuvshynov
 
 const { spawnSync } = require('child_process');
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 
-var nasm_builder = {
-  build: function(working_dir, source, options) {
-    var [src, obj, exe] = ['b.asm', 'b.o', 'b.out'].map(
-      f => path.join(working_dir, f)
-    );
+class NASMBuilder {
+  static async build(working_dir, source_code, options) {
+    return new Promise(async (resolve, reject) => {
+      let [src, obj, exe] = ['b.asm', 'b.o', 'b.out'].map(
+        f => path.join(working_dir, f)
+      );
 
-    // TODO: error-handling
-    /* const r = */
-    fs.writeFileSync(src, source);
+      try {
+        await fs.writeFile(src, source_code);
+        const nasm = spawnSync('nasm', options.concat(src, '-o', obj));
+        if (nasm.status !== 0) {
+          reject(nasm.stderr);
+          return;
+        }
+        const ld = spawnSync('ld', [obj, '-o', exe]);
+        if (ld.status !== 0) {
+          reject(ld.stderr);
+          return;
+        }
 
-    /* const nasm = */
-    spawnSync('nasm', options.concat(src, '-o', obj));
-    // TODO: return error
-    // console.log(nasm.stderr.toString('utf8'));
+        resolve(exe);
+      }
+      catch (err) {
+        reject(err);
+      }
+    });
+  }
+}
 
-    /* const ld = */
-    spawnSync('ld', [obj, '-o', exe]);
-    // TODO: return error
-    // console.log(ld.stderr.toString('utf8'));
-
-    return exe;
-  },
-};
-module.exports = nasm_builder;
+module.exports = NASMBuilder;
