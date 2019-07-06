@@ -43,5 +43,5 @@ function try_dequeue() {
   });
 }
 
-setInterval(try_dequeue, 5 * 1000);
+setInterval(try_dequeue, 100);
 

@@ -6,20 +6,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const DBSQLite = require('./db/db_sqlite.js');
 
-/*
- * List of functionality we need to implement:
- * User facing:
- *  - see if there're executors available
- *  - submit new job
- *  - monitor for job completion, see results
- *  - check queue status
- *  - check other jobs (including docs)
- * Executor-facing:
- *  - executor status reporting
- *  - executor task dequeue
- *  - executor task done
- */
-
 // TODO: current db is for 1 session only
 const db = new DBSQLite(':memory:');
 const port = 3031;
@@ -31,7 +17,7 @@ app.use(bodyParser.json());
 app.post('/new_task', async(req, res, next) => {
   console.log('/new_task');
   await db.connect();
-  // TODO: this is idiotic
+  // TODO: back and forth to/from JSON :/
   const task_uuid = await db.new_task(JSON.stringify(req.body));
   res.send(task_uuid);
 });

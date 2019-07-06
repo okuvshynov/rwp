@@ -7,6 +7,7 @@
 -- * 0 - newly created, not picked up
 -- * 1 - picked up by executor
 -- * 2 - finished
+-- * 3 - finished with error (?)
 CREATE TABLE IF NOT EXISTS tasks(
   id INTEGER PRIMARY KEY ASC,
   uuid TEXT,
@@ -18,13 +19,6 @@ CREATE TABLE IF NOT EXISTS tasks(
 CREATE INDEX IF NOT EXISTS task_status_idx ON tasks(status);
 CREATE INDEX IF NOT EXISTS task_uuid ON tasks(uuid);
 CREATE INDEX IF NOT EXISTS task_run_uuid ON tasks(run_uuid);
-
---CREATE TABLE IF NOT EXISTS results(
---  id INTEGER PRIMARY KEY ASC,
---  task_run_uuid TEXT,
---  result TEXT,
---  FOREIGN KEY(task_run_uuid) REFERENCES tasks(run_uuid)
---);
 
 -- This is 'cached' version to show in UI
 CREATE TABLE IF NOT EXISTS executors(
