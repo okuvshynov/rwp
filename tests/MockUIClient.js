@@ -8,12 +8,12 @@ process.on('uncaughtException', (err) => {
 const src = fs.readFileSync('tests/mock/mock_src.asm', 'utf8');
 
 class MockUIClient {
-  async new_task() {
+  async new_task(events) {
     const res = await axios({
       method: 'post',
       url: 'http://127.0.0.1:3031/new_task/',
       data: {
-        perf_events: 'cycles,r0803',
+        perf_events: events,
         source: src,
       },
     });

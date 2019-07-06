@@ -2,17 +2,6 @@
 // Refer to /LICENSE file for full text
 // Copyright (c) 2019 Oleksandr Kuvshynov
 
-// This is sqlite implementation of the data access module.
-// Maybe, in future, we'll have to migrate to something different;
-// To implement:
-// [x] get list of active executors
-// [x] submit new task
-// [ ] get result of task execution
-// [ ] get job queue status
-// [ ] see past runs [later]
-// [ ] mark executor as 'active'
-// [x] dequeue task
-// [x] submit a result of task execution
 const sqlite3 = require('sqlite3');
 const uuidv1 = require('uuid/v1');
 const fs = require('fs');
@@ -83,25 +72,6 @@ class DBSQLite {
     });
   }
 
-
-  /*
-   * Executes insert statement and returns a promise with last
-   * inserted id (or error)
-   */
-  async insert(sql, params) {
-    return new Promise((resolve, reject) => {
-      // Using 'function' instead of arrow notation
-      // to get access to this.lastID
-      this.db.run(sql, params, function(err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(this.lastID);
-        }
-      });
-    });
-  }
-
   async active_executors() {
     return this.all('select * from executors');
   }
@@ -162,10 +132,7 @@ class DBSQLite {
     });
   }
 
-  // TODO: also modify task status.
   // Although, maybe run_uuid counts as a status and we do not need it at all.
-  // TODO: make sure to not record duplicated results
-  // TODO: maybe avoid 'results' table entirely.
   async record_task_result(run_uuid, result) {
     return new Promise((resolve, reject) => {
       this.db.run(
