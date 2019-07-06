@@ -1,4 +1,4 @@
-const MockUIClient = require('./MockUIClient.js');
+const MockUIClient = require('../MockUIClient.js');
 
 const client = new MockUIClient();
 

@@ -5,7 +5,7 @@ process.on('uncaughtException', (err) => {
   console.log(err);
 });
 
-const src = fs.readFileSync('service/mock/mock_src.asm', 'utf8');
+const src = fs.readFileSync('tests/mock/mock_src.asm', 'utf8');
 
 class MockUIClient {
   async new_task() {

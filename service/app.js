@@ -4,7 +4,7 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const DBSQLite = require('./db_sqlite.js');
+const DBSQLite = require('./db/db_sqlite.js');
 
 /*
  * List of functionality we need to implement:
