@@ -8,8 +8,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const config =
-  JSON.parse(fs.readFileSync('service/mock/mock_task.json', 'utf8'));
-const src = fs.readFileSync('service/mock/mock_src.asm', 'utf8');
+  JSON.parse(fs.readFileSync('tests/mock/mock_task.json', 'utf8'));
+const src = fs.readFileSync('tests/mock/mock_src.asm', 'utf8');
 config[0].source = src;
 
 const app = express();

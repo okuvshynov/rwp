@@ -1,8 +1,0 @@
-This module will control communication with backend; That would include:
-1) Keep-Alive, so that main app knows who's available
-2) Polling for new jobs.
-3) Submitting the results.
-
-Executors themseleves do not maintain any state between the executions.
-All the information on 'what's the status of the run, when do we retry, etc.'
-is handled by state transitions in the main app.

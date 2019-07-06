@@ -3,32 +3,8 @@
 // Copyright (c) 2019 Oleksandr Kuvshynov
 
 const axios = require('axios');
-const NASMBuilder = require('./build/nasm_builder.js');
+const NASMBuilder = require('./build/NASMBuilder.js');
 const perf_stat_runner = require('./run/perf_stat_runner.js');
-
-function send_results(to_send) {
-  var post_options = {
-    path: '/task_done',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': to_send.length,
-    },
-  };
-  Object.assign(post_options, server_config);
-  const post_update = http.request(post_options, post_result => {
-    post_result.on('data', d => {
-      // TODO: acknowledge the update
-      console.log(d);
-    });
-  });
-
-  post_update.on('error', e => {
-    console.error(e);
-  });
-  post_update.write(to_send);
-  post_update.end();
-}
 
 /*
  * Queries the service, gets a task, runs it and queries the server again;
@@ -55,13 +31,13 @@ function try_dequeue() {
             perf_events: events,
             run_uuid: task.run_uuid,
           },
-        
         });
       });
     }
   ) 
   .catch(err => {
     if (err) {
+      // TODO: return error to service, if it was build error
       console.error(err);
     }
   });

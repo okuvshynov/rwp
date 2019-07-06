@@ -33,7 +33,7 @@ test('testing server interfaces', done => {
 
   // Start the executor, which will periodically poll for jobs
   setTimeout(async() => {
-    const executor = fork('service/mock/mock_executor.js');
+    const executor = fork('tests/mock/mock_executor.js');
 
     setTimeout(async() => {
       const client = new MockUIClient();

@@ -2,6 +2,10 @@
 // Refer to /LICENSE file for full text
 // Copyright (c) 2019 Oleksandr Kuvshynov
 
+/*
+ * This is an 'executor' which 'executes' any config
+ * and returns some numbers for the events requested
+ */
 const axios = require('axios');
 
 function try_dequeue() {
