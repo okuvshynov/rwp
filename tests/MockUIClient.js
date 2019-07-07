@@ -1,5 +1,11 @@
 const axios = require('axios');
 const fs = require('fs');
+const url = require('url');
+
+const argv = require('yargs')
+  .default('service_url', 'http://127.0.0.1:3031/')
+  .argv
+;
 
 process.on('uncaughtException', (err) => {
   console.log(err);
@@ -11,7 +17,7 @@ class MockUIClient {
   async new_task(events) {
     const res = await axios({
       method: 'post',
-      url: 'http://127.0.0.1:3031/new_task/',
+      url: url.resolve(argv.service_url, '/new_task/'),
       data: {
         perf_events: events,
         source: src,
@@ -23,7 +29,7 @@ class MockUIClient {
   async task_status(task_uuid) {
     const res = await axios({
       method: 'get',
-      url: 'http://127.0.0.1:3031/task_status/',
+      url: url.resolve(argv.service_url, '/task_status/'),
       params: {
         uuid: task_uuid,
       },

@@ -7,11 +7,16 @@
  * and returns some numbers for the events requested
  */
 const axios = require('axios');
+const url = require('url');
+const argv = require('yargs')
+  .default('service_url', 'http://127.0.0.1:3031/')
+  .argv
+;
 
 function try_dequeue() {
   axios({
     method: 'get',
-    url: 'http://127.0.0.1:3031/tasks/',
+    url: url.resolve(argv.service_url, '/tasks/'),
   })
     .then(res => {
       res.data.forEach(task => {
@@ -23,7 +28,7 @@ function try_dequeue() {
         }, {});
         axios({
           method: 'post',
-          url: 'http://127.0.0.1:3031/task_done/',
+          url: url.resolve(argv.service_url, '/task_done/'),
           data: {
             perf_events: events,
             run_uuid: task.run_uuid,
