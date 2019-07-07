@@ -6,9 +6,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const DBSQLite = require('./db/DBSQLite.js');
 
+const argv = require('yargs')
+  .default('port', 3031)
+  .argv
+;
+
 // TODO: current db is for 1 session only
 const db = new DBSQLite(':memory:');
-const port = 3031;
+const port = argv.port;
 
 const app = express();
 app.use(bodyParser.json());
