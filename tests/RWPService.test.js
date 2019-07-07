@@ -10,7 +10,6 @@ const MockUIClient = require('./MockUIClient.js');
  * server and db
  */
 
-
 test('testing server interfaces', done => {
   expect.assertions(3);
   process.on('uncaughtException', (err) => {
@@ -66,8 +65,10 @@ test('testing server interfaces', done => {
       setTimeout(async() => {
         const result = await client.task_status(task_id);
         expect(result).toHaveLength(1);
+
         const perf_events = result[0].perf_events;
         expect(perf_events).toBeDefined();
+
         const counters = JSON.parse(perf_events);
         expect(counters).toEqual(expect.objectContaining({
           cycles: expect.any(Number),

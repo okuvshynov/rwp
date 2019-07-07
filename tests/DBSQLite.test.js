@@ -1,4 +1,4 @@
-const DBSQLite = require('../service/db/db_sqlite.js');
+const DBSQLite = require('../service/db/DBSQLite.js');
 
 /*
  * For testing, just mock SQLite in memory

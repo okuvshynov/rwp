@@ -4,7 +4,7 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const DBSQLite = require('./db/db_sqlite.js');
+const DBSQLite = require('./db/DBSQLite.js');
 
 // TODO: current db is for 1 session only
 const db = new DBSQLite(':memory:');
@@ -15,7 +15,6 @@ app.use(bodyParser.json());
 
 // Handles new task submission
 app.post('/new_task', async(req, res, next) => {
-  console.log('/new_task');
   await db.connect();
   // TODO: back and forth to/from JSON :/
   const task_uuid = await db.new_task(JSON.stringify(req.body));
@@ -23,7 +22,6 @@ app.post('/new_task', async(req, res, next) => {
 });
 
 app.get('/task_status', async(req, res) => {
-  console.log('/task_status');
   await db.connect();
   const task = await db.get_task_result(req.query.uuid);
   if (task === undefined) {
@@ -36,7 +34,6 @@ app.get('/task_status', async(req, res) => {
 });
 
 app.get('/tasks', async(req, res) => {
-  console.log('/tasks');
   await db.connect();
   const task = await db.dequeue();
   if (task === undefined) {
@@ -49,7 +46,6 @@ app.get('/tasks', async(req, res) => {
 });
 
 app.post('/task_done', async(req, res, next) => {
-  console.log('/task_done');
   await db.connect();
   // TODO: another stringify
   await db.record_task_result(
