@@ -4,7 +4,7 @@
 
 const axios = require('axios');
 const NASMBuilder = require('./build/NASMBuilder.js');
-const perf_stat_runner = require('./run/perf_stat_runner.js');
+const PerfStatRunner = require('./run/PerfStatRunner.js');
 
 /*
  * Queries the service, gets a task, runs it and queries the server again;
@@ -13,17 +13,14 @@ const perf_stat_runner = require('./run/perf_stat_runner.js');
  * not accessible from the outside.
  */
 function try_dequeue() {
-  console.log('checking for active tasks...');
   axios({
     method: 'get',
     url: 'http://127.0.0.1:3031/tasks/',
   }).then(
     res => {
       res.data.forEach(async (task) => {
-        console.log('compiling...');
         const exe = await NASMBuilder.build('/tmp', task.source, ['-felf64']);
-        console.log('executing...');
-        const events = perf_stat_runner.run(exe, task.perf_events);
+        const events = PerfStatRunner.run(exe, task.perf_events);
         axios({
           method: 'post',
           url: 'http://127.0.0.1:3031/task_done/',

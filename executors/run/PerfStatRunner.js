@@ -10,8 +10,8 @@ const fs = require('fs');
  * sudo sh -c 'echo 1 >/proc/sys/kernel/perf_event_paranoid'
  * sudo sh -c 'echo kernel.perf_event_paranoid=1 > /etc/sysctl.d/local.conf'
  */
-var perf_stat_runner = {
-  run: function(executable, events) {
+class PerfStatRunner {
+  static run(executable, events) {
     const output_file = executable + '.stat';
     const separator = ',';
     // TODO: error handling
@@ -39,6 +39,7 @@ var perf_stat_runner = {
       );
 
     return res;
-  },
-};
-module.exports = perf_stat_runner;
+  }
+}
+module.exports = PerfStatRunner;
+
