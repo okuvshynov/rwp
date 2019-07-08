@@ -1,0 +1,18 @@
+Another idea might be to have common interface like 'stage' in a pipeline.
+Example stages could be:
+1) compiling
+2) linking
+3) running
+4) ...
+
+Specific implementations of these stages could include nasm, gcc, ld, perf, etc.
+
+Each stage may produce:
+1) outputs (like, object files)
+2) warnings (we still can continue)
+3) errors (we have to stop)
+
+Looks like to make it ~work I'll need to make sure we have some contract like
+'this type of output can be fed into this type of input'. Unclear if we need that level of complexity at all.
+
+Easier way to make this a little more uniform would be to still have a ''arbitrary side effect' kind of communication, but have something well-defined for warnings/errors/logs.

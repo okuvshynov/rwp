@@ -15,16 +15,13 @@ class PerfStatRunner {
     const output_file = executable + '.stat';
     const separator = ',';
     // TODO: error handling
-    /* const perf_stat = */
     spawnSync(
       'perf',
       ['stat', '-e', events, '-o', output_file, '-x', separator, executable]
     );
 
-    var res = {};
+    let res = {};
 
-    // parse the output from output file
-    // const rows =
     (fs.readFileSync(output_file, 'utf8'))
       .split('\n')
       .map(
