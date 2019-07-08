@@ -1,12 +1,93 @@
 <style>
-  .#monoeditor {
+  #monoeditor {
+    font-family: monospace;
+  }
+  #perf_events {
+    font-family: monospace;
+  }
+  #perf_result {
     font-family: monospace;
   }
 </style>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous">
+</script>
+<script
+  src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"
+  integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps="
+  crossorigin="anonymous">
+</script>
+
+<span>
 <form action="/new_task" method="post">
-  <textarea name="source" id="monoeditor" rows="40" cols="80"></textarea>
+  <textarea name="source" id="monoeditor" rows="20" cols="80"></textarea>
   <br>
-  <input type="text" name="perf_events">
-  <br>
-  <input type="submit">
+  <input type="text" id="perf_events">
 </form>
+</span>
+<span>
+  <ul id="perf_result"></ul>
+</span>
+<script>
+  let old_config = {};
+  let current_uuid = null;
+
+  function format(num) {
+    if (!Number.isInteger(num)) {
+      return null;
+    }
+    // rough idea:
+    // for values 0..9999 use value itself, like 3321
+    // for values 10000..9999999 use K prefix. 11k, 124k, 9999k
+    // for values 10M..9999M use M prefix
+    // beyond, use B prefix
+    let v = Math.abs(num);
+    const s = (Math.sign(num) < 0 ? "-" : "");
+    if (v < 10000) {
+      return s + v.toString();
+    }
+    v = _.floor(v / 1000);
+    if (v < 10000) {
+      return s + v.toString() + "k";
+    }
+    v = _.floor(v / 1000);
+    if (v < 10000) {
+      return s + v.toString() + "m";
+    }
+    v = _.floor(v / 1000);
+    return s + v.toString() + "b";
+  }
+
+  // resubmit automatically
+  setInterval(() => {
+    let new_config = {
+      source: $("#monoeditor").val(),
+      perf_events: $("#perf_events").val()
+    };
+    if (!_.isEqual(new_config, old_config) && new_config.perf_events !== "") {
+      old_config = new_config;
+      $.post("/new_task", new_config, (repl) => {
+        current_uuid = repl;
+      });
+    }
+  }, 1000);
+
+  // monitor for results
+  setInterval(() => {
+    if (current_uuid !== null) {
+      $.get("/task_status", {uuid: current_uuid}, (repl) => {
+        if (repl.length >= 0) { 
+          let results = JSON.parse(repl[0].perf_events);
+          _.forIn(results, (v, k) => {
+            $("#perf_result").append("<li>" + k + ":" + format(v) + "</li>");
+          });
+    
+          current_uuid = null;
+        }
+      });
+    }
+  }, 1000);
+
+</script>
