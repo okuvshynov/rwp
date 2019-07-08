@@ -5,6 +5,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const DBSQLite = require('./db/DBSQLite.js');
+const path = require('path');
 
 const argv = require('yargs')
   .default('port', 3031)
@@ -17,11 +18,17 @@ const port = argv.port;
 
 const app = express();
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.get('/', async(req, res) => {
+  res.sendFile(path.join(__dirname, 'ui/index.html'));
+}); 
 
 // Handles new task submission
 app.post('/new_task', async(req, res, next) => {
   await db.connect();
   // TODO: back and forth to/from JSON :/
+  console.log(req.body);
   const task_uuid = await db.new_task(JSON.stringify(req.body));
   res.send(task_uuid);
 });
