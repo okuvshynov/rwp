@@ -4,3 +4,5 @@ and capturing some telemetry about the runs. First implementation would likely b
 perf stat -e <events> <executable>
 
 perf annotate/record/report might come later.
+
+What should be the contract between UI and executor that will allow to make sure things are in sync?
