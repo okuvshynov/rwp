@@ -28,7 +28,6 @@ app.get('/', async(req, res) => {
 app.post('/new_task', async(req, res, next) => {
   await db.connect();
   // TODO: back and forth to/from JSON :/
-  console.log(req.body);
   const task_uuid = await db.new_task(JSON.stringify(req.body));
   res.send(task_uuid);
 });

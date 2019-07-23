@@ -42,7 +42,7 @@ function try_dequeue() {
   .catch(err => {
     if (err) {
       // TODO: return error to service, if it was build error
-      log_maybe(1000, "error");
+      log_every_ms(5000, "error");
     }
   });
 }
