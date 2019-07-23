@@ -4,6 +4,7 @@
 
 const axios = require('axios');
 const url = require('url');
+const {log_maybe} = require('../lib/logn.js');
 const NASMBuilder = require('./build/NASMBuilder.js');
 const PerfStatRunner = require('./run/PerfStatRunner.js');
 const argv = require('yargs')
@@ -41,7 +42,7 @@ function try_dequeue() {
   .catch(err => {
     if (err) {
       // TODO: return error to service, if it was build error
-      console.error(err);
+      log_maybe(1000, "error");
     }
   });
 }
