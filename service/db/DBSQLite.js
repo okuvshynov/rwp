@@ -162,7 +162,8 @@ class DBSQLite {
          tasks.run_uuid, 
          tasks.id, 
          tasks.uuid,
-         tasks.result 
+         tasks.result,
+         tasks.status
        FROM 
         tasks 
        WHERE 

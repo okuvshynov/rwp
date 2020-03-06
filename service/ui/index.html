@@ -28,7 +28,7 @@
 </form>
 </span>
 <span>
-  <ul id="perf_result"></ul>
+  <div id="task_status"></div>
 </span>
 <script>
   let old_config = {};
@@ -70,6 +70,7 @@
       old_config = new_config;
       $.post("/new_task", new_config, (repl) => {
         current_uuid = repl;
+        $("#task_status").html("enqueued");
       });
     }
   }, 1000);
@@ -79,12 +80,19 @@
     if (current_uuid !== null) {
       $.get("/task_status", {uuid: current_uuid}, (repl) => {
         if (repl.length >= 0) { 
+          if (repl[0].status === 1) {
+            $("#task_status").html("running");
+          }
           let results = JSON.parse(repl[0].perf_events);
-          _.forIn(results, (v, k) => {
-            $("#perf_result").append("<li>" + k + ":" + format(v) + "</li>");
-          });
-    
-          current_uuid = null;
+          if (results !== null && repl[0].status === 2) {
+            let counters = "";
+            _.forIn(results, (v, k) => {
+              counters = counters.concat(k + ":" + format(v) + "<br/>");
+            });
+            $("#task_status").html("done<br>" + counters);
+      
+            current_uuid = null;
+          }
         }
       });
     }

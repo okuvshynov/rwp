@@ -28,6 +28,8 @@ function try_dequeue() {
       res.data.forEach(async (task) => {
         const exe = await CPPBuilder.build('/tmp', task.source, []);
         const events = PerfStatRunner.run(exe, task.perf_events);
+        console.log(exe);
+        console.log(events);
         axios({
           method: 'post',
           url: url.resolve(argv.service_url, '/task_done/'),
