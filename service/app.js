@@ -30,8 +30,8 @@ app.post('/new_task', async(req, res, next) => {
   // TODO: back and forth to/from JSON :/
   const task_uuid = await db.new_task(JSON.stringify(req.body));
   // TODO: redirect to a 'result' page
-  //res.send(task_uuid);
-  res.redirect('/task_status?uuid=' + task_uuid);
+  res.send(task_uuid);
+  //res.redirect('/task_status?uuid=' + task_uuid);
 });
 
 app.get('/task_status', async(req, res) => {
@@ -41,6 +41,7 @@ app.get('/task_status', async(req, res) => {
     res.send([]);
   } else {
     res.send([{
+      status: task.status,
       perf_events: task.result,
     }]);
   }
