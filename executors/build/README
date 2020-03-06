@@ -9,5 +9,5 @@ Implementations for MVP would likely be:
 1) nasm + ld
 2) some C/C++
 3) maybe godbolt API?
+4) rustc?
 
-build/ run/ and comm/ must not depend on each other.

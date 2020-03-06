@@ -29,7 +29,9 @@ app.post('/new_task', async(req, res, next) => {
   await db.connect();
   // TODO: back and forth to/from JSON :/
   const task_uuid = await db.new_task(JSON.stringify(req.body));
-  res.send(task_uuid);
+  // TODO: redirect to a 'result' page
+  //res.send(task_uuid);
+  res.redirect('/task_status?uuid=' + task_uuid);
 });
 
 app.get('/task_status', async(req, res) => {

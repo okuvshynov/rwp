@@ -4,8 +4,8 @@
 
 const axios = require('axios');
 const url = require('url');
-const {log_maybe} = require('../lib/logn.js');
-const NASMBuilder = require('./build/NASMBuilder.js');
+const {log_maybe, log_every_ms} = require('../lib/logn.js');
+const CPPBuilder = require('./build/CPPBuilder.js');
 const PerfStatRunner = require('./run/PerfStatRunner.js');
 const argv = require('yargs')
   .default('service_url', 'http://127.0.0.1:3031/')
@@ -26,7 +26,7 @@ function try_dequeue() {
   }).then(
     res => {
       res.data.forEach(async (task) => {
-        const exe = await NASMBuilder.build('/tmp', task.source, ['-felf64']);
+        const exe = await CPPBuilder.build('/tmp', task.source, []);
         const events = PerfStatRunner.run(exe, task.perf_events);
         axios({
           method: 'post',
@@ -40,6 +40,7 @@ function try_dequeue() {
     }
   ) 
   .catch(err => {
+    console.log(err);
     if (err) {
       // TODO: return error to service, if it was build error
       log_every_ms(5000, "error");
