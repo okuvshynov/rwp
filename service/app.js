@@ -19,6 +19,7 @@ const port = argv.port;
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/monaco-editor', express.static("node_modules/monaco-editor"));
 
 app.get('/', async(req, res) => {
   res.sendFile(path.join(__dirname, 'ui/index.html'));
@@ -29,9 +30,7 @@ app.post('/new_task', async(req, res, next) => {
   await db.connect();
   // TODO: back and forth to/from JSON :/
   const task_uuid = await db.new_task(JSON.stringify(req.body));
-  // TODO: redirect to a 'result' page
   res.send(task_uuid);
-  //res.redirect('/task_status?uuid=' + task_uuid);
 });
 
 app.get('/task_status', async(req, res) => {

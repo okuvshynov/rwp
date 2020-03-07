@@ -1,12 +1,27 @@
 <style>
   #monoeditor {
     font-family: monospace;
+    font-size: 12px;
   }
   #perf_events {
     font-family: monospace;
+    font-size: 12px;
   }
-  #perf_result {
+  #task_status {
     font-family: monospace;
+  }
+
+  .in_progress {
+    color: #e0b219
+  }
+
+  .done {
+    color: #78d645
+  }
+
+  td {
+    font-family: monospace;
+    font-size: 12px;
   }
 </style>
 <script
@@ -20,16 +35,37 @@
   crossorigin="anonymous">
 </script>
 
-<span>
 <form action="/new_task" method="post">
-  <textarea name="source" id="monoeditor" rows="20" cols="80"></textarea>
-  <br>
-  <input type="text" id="perf_events">
+<table>
+  <tr>
+    <td>
+      <input type="text" id="perf_events" size="80" placeholder="comma-separated events"><br/>
+      <div id="src" style="width:800px;height:600px;border:1px solid grey"/>
+    </td>
+    <td valign='top'>
+      <div id="task_status"></div>
+      <div id="pmu_results"></div>
+    </td>
+  </tr>
+</table>
 </form>
-</span>
-<span>
-  <div id="task_status"></div>
-</span>
+
+<script src="/monaco-editor/min/vs/loader.js"></script>
+<script>
+  require.config({ paths: { 'vs': '/monaco-editor/min/vs' }});
+
+  require(['vs/editor/editor.main'], function() {
+    window.editor = monaco.editor.create(document.getElementById('src'), {
+      value: [
+        'int main() {',
+        '  return 0;',
+        '}'
+      ].join('\n'),
+      language: 'cpp'
+    });
+  });
+</script>
+
 <script>
   let old_config = {};
   let current_uuid = null;
@@ -63,14 +99,16 @@
   // resubmit automatically
   setInterval(() => {
     let new_config = {
-      source: $("#monoeditor").val(),
+      //source: $("#monoeditor").val(),
+      source: window.editor.getValue(),
       perf_events: $("#perf_events").val()
     };
-    if (!_.isEqual(new_config, old_config) && new_config.perf_events !== "") {
+    if (!_.isEqual(new_config, old_config) && new_config.perf_events !== "" && new_config.source !== "") {
       old_config = new_config;
       $.post("/new_task", new_config, (repl) => {
         current_uuid = repl;
         $("#task_status").html("enqueued");
+        $("#task_status").addClass("in_progress");
       });
     }
   }, 1000);
@@ -87,9 +125,11 @@
           if (results !== null && repl[0].status === 2) {
             let counters = "";
             _.forIn(results, (v, k) => {
-              counters = counters.concat(k + ":" + format(v) + "<br/>");
+              counters = counters.concat("<tr><td>" + k + "</td><td>" + format(v) + "</td></tr>");
             });
-            $("#task_status").html("done<br>" + counters);
+            $("#task_status").html("done");
+            $("#pmu_results").html("<table>" + counters + "</table>");
+            $("#task_status").addClass("done");
       
             current_uuid = null;
           }
