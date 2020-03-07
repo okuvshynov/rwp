@@ -76,8 +76,8 @@ class DBSQLite {
     return this.all('select * from executors');
   }
 
-  async active_tasks() {
-    return this.all('select * from tasks where status=0');
+  async tasks_in_queue() {
+    return this.get('select count(*) as in_queue from tasks where status=0');
   }
 
   /*

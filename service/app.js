@@ -25,6 +25,14 @@ app.get('/', async(req, res) => {
   res.sendFile(path.join(__dirname, 'ui/index.html'));
 }); 
 
+app.get('/status', async(req, res) => {
+  await db.connect();
+  const cnt = await db.tasks_in_queue();
+  res.send({
+    in_queue: cnt["in_queue"],
+  })
+});
+
 // Handles new task submission
 app.post('/new_task', async(req, res, next) => {
   await db.connect();
