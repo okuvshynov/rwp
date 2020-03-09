@@ -1,0 +1,180 @@
+<style>
+  body {
+    background-color: #171717
+  }
+  #perf_events {
+    font-family: monospace;
+    font-size: 12px;
+  }
+  #task_status {
+    font-family: monospace;
+  }
+
+  .in_progress {
+    color: #e0b219
+  }
+
+  .done {
+    color: #78d645
+  }
+
+  td {
+    font-family: monospace;
+    font-size: 12px;
+    color: #ffffff;
+  }
+</style>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous">
+</script>
+<script
+  src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"
+  integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps="
+  crossorigin="anonymous">
+</script>
+<title>PERFPI</title>
+<form action="/new_task" method="post">
+<table border=1 width=100%>
+  <tr>
+    <td width=50%>
+      <input type="text" id="perf_events" size="80" placeholder="comma-separated events"><br/>
+      <div id="src" style="width:100%;height:600px;border:1px solid white"/>
+    </td>
+    <td valign='top'>
+      <div id="left_pmu_results"></div>
+      <div id="right_pmu_results"></div>
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2>
+      Original: <span id="left_task_status">not submitted</span>
+      Modified: <span id="right_task_status">not submitted</span>
+    </td>
+  </tr>
+</table>
+</form>
+
+<script src="/monaco-editor/min/vs/loader.js"></script>
+<script>
+  function executor(model, status_id, results_id, events_id) {
+    this.model = model;
+    this.status_id = status_id;
+    this.results_id = results_id;
+    this.events_id = events_id;
+    this.old_config = {};
+
+    this.maybe_submit = function() {
+      let config = {
+        source: this.model.getValue(),
+        perf_events: $(this.events_id).val()
+      };
+      if (!_.isEqual(config, this.old_config) && config.perf_events !== "" && config.source !== "") {
+        this.old_config = config;
+        $.post("/new_task", config, (repl) => {
+          this.uuid = repl;
+          $(this.status_id).html("enqueued");
+          $(this.status_id).removeClass("done");
+          $(this.status_id).addClass("in_progress");
+        });
+      }
+    }
+
+    this.check_status = function() {
+      if (this.uuid !== undefined) {
+        $.get("/task_status", {uuid: this.uuid}, (repl) => {
+          if (repl.length >= 0) { 
+            if (repl[0].status === 1) {
+              $(this.status_id).html("running");
+            }
+            let results = JSON.parse(repl[0].perf_events);
+            if (results !== null && repl[0].status === 2) {
+              let counters = "";
+              _.forIn(results, (v, k) => {
+                counters = counters.concat("<tr><td>" + k + "</td><td>" + format(v) + "</td></tr>");
+              });
+              $(this.status_id).html("done");
+              $(this.results_id).html("<table>" + counters + "</table>");
+              $(this.status_id).removeClass("in_progress");
+              $(this.status_id).addClass("done");
+        
+              this.uuid = undefined;
+            }
+          }
+        });
+      }
+    }
+  }
+
+  require.config({ paths: { 'vs': '/monaco-editor/min/vs' }});
+
+  require(['vs/editor/editor.main'], function() {
+    let left = monaco.editor.createModel(
+        'int main() { return 0;}'
+    );
+    let right = monaco.editor.createModel(
+        'int main() { return 0;}'
+    );
+    window.editor = monaco.editor.createDiffEditor(document.getElementById('src'), {
+      originalEditable: true,
+      minimap: {
+        enabled: false
+      },
+      theme: "vs-light",
+    });
+
+    window.editor.setModel({
+      original: left,
+      modified: right
+    });
+
+    monaco.editor.setModelLanguage(window.editor.getModel().modified, "cpp");
+    monaco.editor.setModelLanguage(window.editor.getModel().original, "cpp");
+    window.right_executor = new executor(window.editor.getModel().modified, "#right_task_status", "#right_pmu_results", "#perf_events");
+    window.left_executor = new executor(window.editor.getModel().original, "#left_task_status", "#left_pmu_results", "#perf_events");
+  });
+
+  let old_config = {};
+  let current_uuid = null;
+
+  function format(num) {
+    if (!Number.isInteger(num)) {
+      return null;
+    }
+    // rough idea:
+    // for values 0..9999 use value itself, like 3321
+    // for values 10000..9999999 use K prefix. 11k, 124k, 9999k
+    // for values 10M..9999M use M prefix
+    // beyond, use B prefix
+    let v = Math.abs(num);
+    const s = (Math.sign(num) < 0 ? "-" : "");
+    if (v < 10000) {
+      return s + v.toString();
+    }
+    v = _.floor(v / 1000);
+    if (v < 10000) {
+      return s + v.toString() + "k";
+    }
+    v = _.floor(v / 1000);
+    if (v < 10000) {
+      return s + v.toString() + "m";
+    }
+    v = _.floor(v / 1000);
+    return s + v.toString() + "b";
+  }
+  
+
+  // monitor for results & status
+  setInterval(() => {
+    if (window.left_executor !== undefined) {
+      window.left_executor.maybe_submit();
+      window.left_executor.check_status();
+    }
+    if (window.right_executor !== undefined) {
+      window.right_executor.maybe_submit();
+      window.right_executor.check_status();
+    }
+  }, 1000);
+
+</script>

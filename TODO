@@ -1,0 +1,20 @@
+# Executors
+1) Have a single executor handling whole 'gcc compiling' or 'nasm compiling' + perf running.
+2) Expose compiler errors
+3) Report status/queue length
+4) Time limits
+
+# Service
+1) split executors and service to separate apps
+2) better DB structure
+
+# UI
+1) Comparison mode
+2) Measuring specific functions?
+
+# Examples
+1) Cache misses
+2) False sharing
+3) branch, other stalls
+4) stalls per cycle, instructions per cycle
+5) multithreading
