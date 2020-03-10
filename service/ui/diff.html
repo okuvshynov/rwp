@@ -18,6 +18,14 @@
     color: #78d645
   }
 
+  #terminal {
+    font-family: monospace;
+    font-size: 12px;
+    color: #ffffff;
+    height: 100px;
+    overflow: auto;
+  }
+
   td {
     font-family: monospace;
     font-size: 12px;
@@ -53,26 +61,42 @@
       Modified: <span id="right_task_status">not submitted</span>
     </td>
   </tr>
+  <tr>
+    <td colspan=2><div id="terminal"></div></td>
+  </tr>
 </table>
 </form>
 
 <script src="/monaco-editor/min/vs/loader.js"></script>
 <script>
-  function executor(model, status_id, results_id, events_id) {
+  function print(s) {
+    $("#terminal").append(s + "<br/>");
+  }
+  function Executor(model, status_id, results_id, events_id) {
     this.model = model;
     this.status_id = status_id;
     this.results_id = results_id;
     this.events_id = events_id;
     this.old_config = {};
+    this.candidate_config = {};
 
     this.maybe_submit = function() {
       let config = {
         source: this.model.getValue(),
         perf_events: $(this.events_id).val()
       };
+      // source is submitted if:
+      // - it is different from previously submitted one
+      // - it hasn't changed in last second
+      if (!_.isEqual(config, this.candidate_config)) {
+        this.candidate_config = config;
+        return;
+      }
+      // getting here means 'hasn't changed in last second'
       if (!_.isEqual(config, this.old_config) && config.perf_events !== "" && config.source !== "") {
         this.old_config = config;
         $.post("/new_task", config, (repl) => {
+          print("enqueued " + repl);
           this.uuid = repl;
           $(this.status_id).html("enqueued");
           $(this.status_id).removeClass("done");
@@ -86,13 +110,16 @@
         $.get("/task_status", {uuid: this.uuid}, (repl) => {
           if (repl.length >= 0) { 
             if (repl[0].status === 1) {
+              print("running " + this.uuid);
               $(this.status_id).html("running");
             }
             let results = JSON.parse(repl[0].perf_events);
             if (results !== null && repl[0].status === 2) {
+              print("done " + this.uuid);
               let counters = "";
               _.forIn(results, (v, k) => {
                 counters = counters.concat("<tr><td>" + k + "</td><td>" + format(v) + "</td></tr>");
+                print("  " + k + ": " + format(v));
               });
               $(this.status_id).html("done");
               $(this.results_id).html("<table>" + counters + "</table>");
@@ -131,8 +158,8 @@
 
     monaco.editor.setModelLanguage(window.editor.getModel().modified, "cpp");
     monaco.editor.setModelLanguage(window.editor.getModel().original, "cpp");
-    window.right_executor = new executor(window.editor.getModel().modified, "#right_task_status", "#right_pmu_results", "#perf_events");
-    window.left_executor = new executor(window.editor.getModel().original, "#left_task_status", "#left_pmu_results", "#perf_events");
+    window.right_executor = new Executor(window.editor.getModel().modified, "#right_task_status", "#right_pmu_results", "#perf_events");
+    window.left_executor = new Executor(window.editor.getModel().original, "#left_task_status", "#left_pmu_results", "#perf_events");
   });
 
   let old_config = {};
